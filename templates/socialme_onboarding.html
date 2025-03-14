@@ -68,10 +68,6 @@
     .btn:hover {
       opacity: 0.9;
     }
-    /* Hidden form for submission */
-    #onboardForm {
-      display: none;
-    }
   </style>
 </head>
 <body>
@@ -87,8 +83,10 @@
       <form onsubmit="nextSlide(); return false;">
         <label for="q1">Sources or URLs to crawl</label>
         <input type="text" id="q1" placeholder="e.g. New York Times, Twitter" />
+        
         <label for="fileUpload">Or upload a file with sources:</label>
         <input type="file" id="fileUpload" accept=".txt,.pdf,.md,.doc,.docx" />
+
         <div class="button-row">
           <button type="submit" class="btn">Next</button>
         </div>
@@ -101,6 +99,7 @@
       <form onsubmit="nextSlide(); return false;">
         <label for="q2">Writing Sample / Inspiration</label>
         <textarea id="q2" placeholder="Paste your writing sample here" rows="4"></textarea>
+
         <div class="button-row">
           <button type="submit" class="btn">Next</button>
         </div>
@@ -113,20 +112,13 @@
       <form onsubmit="submitOnboarding(); return false;">
         <label for="q3">Frequency & Topics</label>
         <input type="text" id="q3" placeholder="e.g. Weekly; AI, Content Marketing" />
+
         <div class="button-row">
           <button type="submit" class="btn">Submit</button>
         </div>
       </form>
     </div>
   </div>
-
-  <!-- Hidden form to store onboarding data -->
-  <form id="onboardForm" action="/store_onboarding" method="POST" enctype="multipart/form-data">
-    <input type="hidden" name="sources" id="hiddenSources">
-    <input type="hidden" name="writing_sample" id="hiddenWritingSample">
-    <input type="hidden" name="freq_topics" id="hiddenFreqTopics">
-    <!-- Note: file uploads would need separate handling -->
-  </form>
 
   <script>
     var currentSlide = 1;
@@ -140,6 +132,7 @@
     function nextSlide() {
       // Hide current slide
       document.getElementById("slide" + currentSlide).classList.remove("active");
+      // Move to next
       currentSlide++;
       if (currentSlide <= totalSlides) {
         document.getElementById("slide" + currentSlide).classList.add("active");
@@ -152,29 +145,19 @@
       var sources = document.getElementById("q1").value;
       var writingSample = document.getElementById("q2").value;
       var freqTopics = document.getElementById("q3").value;
-      // Set hidden form values
-      document.getElementById("hiddenSources").value = sources;
-      document.getElementById("hiddenWritingSample").value = writingSample;
-      document.getElementById("hiddenFreqTopics").value = freqTopics;
-      // Submit the hidden form via POST to /store_onboarding
-      document.getElementById("onboardForm").submit();
+      var fileUpload = document.getElementById("fileUpload").files[0];
+
+      // Log or store data
+      console.log("Sources/URLs:", sources);
+      console.log("File:", fileUpload);
+      console.log("Writing Sample:", writingSample);
+      console.log("Frequency/Topics:", freqTopics);
+
+      // Redirect to the Flask app at port 5001
+      window.location.href = "http://38.242.151.92:5001/";
     }
 
     updateProgress();
-
-    // Allow form submission via Enter key in input fields
-    document.querySelectorAll("input, textarea").forEach(function(element) {
-      element.addEventListener("keypress", function(event) {
-        if (event.key === "Enter") {
-          event.preventDefault();
-          // Find the parent form's submit button and click it
-          var btn = this.form.querySelector("button[type='submit']");
-          if (btn) {
-            btn.click();
-          }
-        }
-      });
-    });
   </script>
 </body>
 </html>
