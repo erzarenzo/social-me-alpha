@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>SocialMe - Onboarding</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .slide {
+      display: none;
+    }
+    .slide.active {
+      display: block;
+    }
+    .progress-bar {
+      width: 100%;
+      background: #ddd;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .progress {
+      height: 10px;
+      background: #4285f4;
+      width: 0%;
+    }
+    form {
+      margin-top: 20px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input[type="text"],
+    textarea,
+    input[type="file"] {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    .button-row {
+      text-align: right;
+      margin-top: 20px;
+    }
+    .btn {
+      padding: 10px 20px;
+      background: #4285f4;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .btn:hover {
+      opacity: 0.9;
+    }
+    /* Hidden form for submission */
+    #onboardForm {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Welcome to SocialMe!</h1>
+    <div class="progress-bar">
+      <div class="progress" id="progress"></div>
+    </div>
+
+    <!-- Slide 1: Sources + File Upload -->
+    <div id="slide1" class="slide active">
+      <p><strong>Question 1:</strong> Which news and social media sources do you admire? (comma separated)</p>
+      <form onsubmit="nextSlide(); return false;">
+        <label for="q1">Sources or URLs to crawl</label>
+        <input type="text" id="q1" placeholder="e.g. New York Times, Twitter" />
+        <label for="fileUpload">Or upload a file with sources:</label>
+        <input type="file" id="fileUpload" accept=".txt,.pdf,.md,.doc,.docx" />
+        <div class="button-row">
+          <button type="submit" class="btn">Next</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Slide 2: Writing Sample -->
+    <div id="slide2" class="slide">
+      <p><strong>Question 2:</strong> Provide a sample of your writing or reference material.</p>
+      <form onsubmit="nextSlide(); return false;">
+        <label for="q2">Writing Sample / Inspiration</label>
+        <textarea id="q2" placeholder="Paste your writing sample here" rows="4"></textarea>
+        <div class="button-row">
+          <button type="submit" class="btn">Next</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Slide 3: Frequency/Topics -->
+    <div id="slide3" class="slide">
+      <p><strong>Question 3:</strong> How frequently do you want content and what topics interest you?</p>
+      <form onsubmit="submitOnboarding(); return false;">
+        <label for="q3">Frequency & Topics</label>
+        <input type="text" id="q3" placeholder="e.g. Weekly; AI, Content Marketing" />
+        <div class="button-row">
+          <button type="submit" class="btn">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Hidden form to store onboarding data -->
+  <form id="onboardForm" action="/store_onboarding" method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="sources" id="hiddenSources">
+    <input type="hidden" name="writing_sample" id="hiddenWritingSample">
+    <input type="hidden" name="freq_topics" id="hiddenFreqTopics">
+    <!-- Note: file uploads would need separate handling -->
+  </form>
+
+  <script>
+    var currentSlide = 1;
+    var totalSlides = 3;
+
+    function updateProgress() {
+      var progress = document.getElementById("progress");
+      progress.style.width = (currentSlide / totalSlides * 100) + "%";
+    }
+
+    function nextSlide() {
+      // Hide current slide
+      document.getElementById("slide" + currentSlide).classList.remove("active");
+      currentSlide++;
+      if (currentSlide <= totalSlides) {
+        document.getElementById("slide" + currentSlide).classList.add("active");
+        updateProgress();
+      }
+    }
+
+    function submitOnboarding() {
+      // Collect data
+      var sources = document.getElementById("q1").value;
+      var writingSample = document.getElementById("q2").value;
+      var freqTopics = document.getElementById("q3").value;
+      // Set hidden form values
+      document.getElementById("hiddenSources").value = sources;
+      document.getElementById("hiddenWritingSample").value = writingSample;
+      document.getElementById("hiddenFreqTopics").value = freqTopics;
+      // Submit the hidden form via POST to /store_onboarding
+      document.getElementById("onboardForm").submit();
+    }
+
+    updateProgress();
+
+    // Allow form submission via Enter key in input fields
+    document.querySelectorAll("input, textarea").forEach(function(element) {
+      element.addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          // Find the parent form's submit button and click it
+          var btn = this.form.querySelector("button[type='submit']");
+          if (btn) {
+            btn.click();
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
